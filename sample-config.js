@@ -1,8 +1,9 @@
 var config = {};
 
-config.prefix = "";
+config.name = 'Testy the Example Discord Bot'
+config.prefix = '';
 config.homeId = '470727642170261504';
-config.copyright = "© kingofalldata.com";
+config.copyright = '© kingofalldata.com';
 
 // config.owner = '218373350643335168';
 config.owner = ['218373350643335168', '470378053198020619', '142733254154387456']; // Multiple Owners

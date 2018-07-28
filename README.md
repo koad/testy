@@ -1,4 +1,4 @@
-# Testy the Discord Example Bot
+# Testy the Example Discord Bot
 
 After a few nights of having dreams about the damn discord bot i was working on, i came up with this framework for it.
 
