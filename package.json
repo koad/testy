@@ -1,0 +1,22 @@
+{
+  "name": "testy",
+  "version": "1.0.0",
+  "description": "Testy the Example Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koad/testy.git"
+  },
+  "author": "Jason (koad)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/koad/testy/issues"
+  },
+  "homepage": "https://github.com/koad/testy#readme",
+  "dependencies": {
+    "discord.js": "^11.3.2"
+  }
+}
