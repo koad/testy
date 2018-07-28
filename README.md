@@ -19,6 +19,7 @@ DATADIR=/home/koad/.sample-datadir/ node index.js
 ## References
 
 Don't be silly, use [nodemon](https://github.com/remy/nodemon)!  
+[The Canada eCoin Discord Channels](https://discord.gg/9wAtaBG)    
 [An Idiots Guide to Discord](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)  
-[]()
-[]()
+[]()  
+[]()  
