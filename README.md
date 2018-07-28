@@ -11,7 +11,6 @@ DATADIR=/home/koad/.sample-datadir/ node index.js
 ```
 
 
-Don't be silly, use [nodemon!](https://github.com/remy/nodemon)
 
 
 
@@ -19,6 +18,7 @@ Don't be silly, use [nodemon!](https://github.com/remy/nodemon)
 
 ## References
 
-[An Idiots Guide to Discord](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)
+Don't be silly, use [nodemon](https://github.com/remy/nodemon)!  
+[An Idiots Guide to Discord](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)  
 []()
 []()
