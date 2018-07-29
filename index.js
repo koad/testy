@@ -156,6 +156,9 @@ client.on("message", function(message){
     if(config.DEBUG) console.log(`message is created -> ${args}`);
 
     // TODO -- If this is a DM and no prefix was used, then add it to the message now and proceed as normal.
+    if(message.channel.type == "dm" && cmd.charAt(0) != config.prefix) {
+        cmd = config.prefix + cmd;
+    };
 
     // We only really want users to interact with the bot, so lets verify that now.  This 
     // shouldnt really need to be done, buts lets be paranoid here about things.
