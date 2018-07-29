@@ -10,22 +10,31 @@ Beware of bugs,  PRs are apprecaited.
 
 ---
 
+
+## Installation
+
+Its easy to install testy into a portable package.
+
+
 * Make a directory for your app data, copy the example-config.js file from this repo to it, then from inside of it
 ```
-mv sample-config.js config.js && mkdir commands && mkdir utilities
+mkdir ~/.testy && cd ~/.testy
+git clone https://github.com/koad/testy.git repo
+cp repo/sample-config.js config.js && mkdir commands && mkdir utilities
 ```
+
+Now you will have a data directory (`.testy` in your home directory), this repo inside it in a directory called `repo`, a commands folder where you will put the commands for your bot (in javascript) and a similar directory for your utilities
 
 * Open up ``config.js`` in your favorite editor and edit the values to reflect your machine/situation
 
-
-
-
-* Then to run the bot from the repo.
+* Then to update then run the bot from the repo.
 ```
-DATADIR=/home/koad/.sample-datadir/ node index.js
+cd ~/.testy/repo && git pull && DATADIR=~/.testy/ node index.js
 ```
 
+---
 
+Now you can create various commands and utilities for your bot.  Look at the samples in the repo for inspiration and guidance.
 
 
 
