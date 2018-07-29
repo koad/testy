@@ -161,7 +161,7 @@ client.on("message", function(message){
     };
 
     // We only really want users to interact with the bot, so lets verify that now.  This 
-    // shouldnt really need to be done, buts lets be paranoid here about things.
+    // shouldnt really need to be done, but lets be paranoid here about things.
     client.fetchUser(message.author.id)
     .then((user) => {
         // If there is a command in our collection with the matching name as our first argument, then load it.
@@ -195,7 +195,9 @@ client.on("channelDelete", function(channel){
 });
 
 // channelPinsUpdate
-/* Emitted whenever the pins of a channel are updated. Due to the nature of the WebSocket event, not much information can be provided easily here - you need to manually check the pins yourself.
+/* Emitted whenever the pins of a channel are updated. Due to the nature of the WebSocket 
+event, not much information can be provided easily here - you need to manually check 
+the pins yourself.
 PARAMETER    TYPE         DESCRIPTION
 channel      Channel      The channel that the pins update occurred in
 time         Date         The time of the pins update    */
