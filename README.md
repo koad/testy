@@ -2,21 +2,15 @@
 
 After a few nights of having dreams about the damn discord bot i was working on, i came up with this framework for it.
 
-Beware of bugs,  PRs are apprecaited.
-
-
-
-
+Beware of bugs,  PRs are appreciated.
 
 ---
-
 
 ## Installation
 
 Its easy to install testy into a portable package.
 
-
-* Make a directory for your app data, copy the example-config.js file from this repo to it, then from inside of it
+* Make a directory for your app's data, copy the example-config.js and set up directories for the command and utility scripts
 ```
 mkdir ~/.testy && cd ~/.testy
 git clone https://github.com/koad/testy.git repo
@@ -31,12 +25,9 @@ Now you will have a data directory (`.testy` in your home directory), this repo 
 ```
 cd ~/.testy/repo && git pull && DATADIR=~/.testy/ node index.js
 ```
-
 ---
 
 Now you can create various commands and utilities for your bot.  Look at the samples in the repo for inspiration and guidance.
-
-
 
 ---
 
