@@ -202,6 +202,9 @@ client.on("messageDelete", function(message){
         //type of event utility, so set that to null.
         utility.run(client, message, null, config);
     });
+
+    // TODO: Look into this,
+    // For some reason, 'messageDelete' is only being called when messages that are new since bot came online.
 });
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
