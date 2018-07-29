@@ -9,21 +9,16 @@
                 b25lIEdvZCwgb25lIGxvdmUu          
                                             */
 
+// This repo could be used as a module for indie.express and is compatible with the `Social Tools` drop-in
+
 const Discord = require('discord.js');
-const fs = require('fs');
 const client = new Discord.Client();
 
-// const userManager = require("./user-manager.js");
-// const serverManager = require("./server-manager.js");
-// const channelManager = require("./channel-manager.js");
-// const invitesManager = require("./invites-manager.js");
-// const utilityManager = require("./utility-manager.js");
-// const commandManager = require("./command-manager.js");
-
+const fs = require('fs');
 const homedir = require('os').homedir();
 var datadir = process.env.DATADIR || homedir + '/.discord-example-bot/'
 
-// Check and see if there is a banner in the datadir, if so -- show it.
+// Check and see if there is a config file in the datadir
 try{
     var config = require(datadir+'/config.js');
 }
@@ -33,14 +28,15 @@ catch(err) {
 }
 
 if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
-console.log(`loading testy using datadir: ${datadir}`)
+console.log(`loading testy using datadir: ${datadir}`);
 
 // Check and see if there is a banner in the datadir, if so -- show it.
 fs.readFile(datadir+'banner', function (err, data) {
     if (err) {
-        console.log(`Support the Canada eCoin project -> canadaecoin.ca`)
+        console.log(`Support the Canada eCoin project -> canadaecoin.ca`);
+    } else {
+        console.log(`\n\x1b[1m${data.toString()}\x1b[0m\n`);
     }
-    console.log(data.toString());
 });
 
 // Success loading our config files, perfect.
@@ -48,8 +44,8 @@ fs.readFile(datadir+'banner', function (err, data) {
 if(config.DEBUG) console.log(config);
 
 // Use the built in utility functions in Discord to manage some in-memory type collections
-// This is where we will load our command and utility scripts in from our data directoy.
-// These collections are not persistant, and will need to be repopulated every time we start our bot.
+// This is where we will load our command and utility scripts in from our data directory.
+// These collections are not persistent, and will need to be repopulated every time we start our bot.
 client.commands = new Discord.Collection();
 client.utilities = new Discord.Collection();
 
@@ -109,7 +105,75 @@ fs.readdir(datadir+'utilities/', (err, files) => {
     log(`Total commands loaded: ${totalUtilities}`);
 });
 
+// Load the manager scripts (optional)
+// const userManager = require("./user-manager.js");
+// const serverManager = require("./server-manager.js");
+// const channelManager = require("./channel-manager.js");
+// const invitesManager = require("./invites-manager.js");
+// const utilityManager = require("./utility-manager.js");
+// const commandManager = require("./command-manager.js");
+
 var inviteLink = ""; // Will get this when the bot becomes ready...
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// Everything below this line is listening for certain events from Discord and acting upon those events.
+// below this line is where you will do most/all of the coding of actions and such in this bot.
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+
+// Lets run a loop for whatever reason, you decide.
+setInterval(function(){ 
+    console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
+}, 100000);
+
+// The few commands that this bot uses out of the box up top -- then the rest in alphabetical order
+// for you to do your magic with.  Look at the top few events for inspiration and guidance
+//
+// ready
+/* Emitted when the client becomes ready to start working.    */
+client.on("ready", function(){
+    console.log(`I am ready! Logged in as ${client.user.tag}!`);
+    console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
+
+    client.user.setStatus(config.initalStatus, 'Made by koad');
+    client.user.setActivity(config.initalActivity);
+    client.generateInvite(config.permissions)
+    .then(link => {
+        console.log(`Generated bot invite link\n\n\x1b[1m${link}\x1b[0m\n`);
+        inviteLink = link;
+    });
+});
+
+// message
+/* Emitted whenever a message is created.
+PARAMETER      TYPE           DESCRIPTION
+message        Message        The created message    */
+client.on("message", function(message){
+    if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
+    let messageArray = message.content.split(" ");
+    let cmd = messageArray[0];
+    let args = messageArray.slice(1);
+
+    if(config.DEBUG) console.log(`message is created -> ${args}`);
+
+    // TODO -- If this is a DM and no prefix was used, then add it to the message now and proceed as normal.
+
+    // We only really want users to interact with the bot, so lets verify that now.  This 
+    // shouldnt really need to be done, buts lets be paranoid here about things.
+    client.fetchUser(message.author.id)
+    .then((user) => {
+        // If there is a command in our collection with the matching name as our first argument, then load it.
+        let command = client.commands.get(cmd.slice(config.prefix.length));
+        //  If a command in the previous step gets loaded into our variable, then lets run it!
+        if (command) command.run(client, message, args, config);
+    })
+    .catch((err) => {
+        console.error('message has no user', err);
+    });
+});
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// the rest of'm
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 // channelCreate
 /* Emitted whenever a channel is created.
@@ -249,7 +313,6 @@ client.on("guildDelete", function(guild){
 PARAMETER     TYPE               DESCRIPTION
 member        GuildMember        The member that has joined a guild    */
 client.on("guildMemberAdd", function(member){
-    userManager.WelcomeNewUser(member);
     if(config.DEBUG) console.log(`a user joins a guild: ${member.tag}`);
 });
 
@@ -312,15 +375,6 @@ client.on("guildUpdate", function(oldGuild, newGuild){
     if(config.DEBUG) console.error(`a guild is updated`);
 });
 
-// message
-/* Emitted whenever a message is created.
-PARAMETER      TYPE           DESCRIPTION
-message        Message        The created message    */
-client.on("message", function(message){
-    if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
-    if(config.DEBUG) console.log(`message is created -> ${args}`);
-});
-
 // messageDelete
 /* Emitted whenever a message is deleted.
 PARAMETER      TYPE           DESCRIPTION
@@ -379,22 +433,6 @@ oldMember    GuildMember        The member before the presence update
 newMember    GuildMember        The member after the presence update    */
 client.on("presenceUpdate", function(oldMember, newMember){
     if(config.DEBUG) console.log(`a guild member's presence changes`);
-});
-
-// ready
-/* Emitted when the client becomes ready to start working.    */
-client.on("ready", function(){
-	console.log(`I am ready! Logged in as ${client.user.tag}!`);
-	console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
-
-	client.generateInvite(['SEND_MESSAGES', 'MANAGE_GUILD', 'MENTION_EVERYONE'])
-	.then(link => {
-		console.log(`Generated bot invite link\n\n\x1b[1m${link}\x1b[0m\n`);
-		inviteLink = link;
-	});
-
-  	client.user.setActivity(config.initalActivity);
-  	client.user.setStatus(config.initalStatus, 'Made by koad');
 });
 
 // reconnecting
@@ -487,14 +525,9 @@ client.on("voiceStateUpdate", function(oldMember, newMember){
 PARAMETER    TYPE       DESCRIPTION
 info         string     The warning   */
 client.on("warn", function(info){
-    if(config.DEBUG) console.log(`warn: ${info}`);
+    log(`warn: ${info}`);
 });
 
+// Connect the bot to the discord servers
 client.login(config.discord.token);
-
-setInterval(function(){ 
-	console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
-	// console.log(`Serving ${client.guilds.size} servers`)
-	// console.log(`Bot has running, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
-}, 100000);
 
