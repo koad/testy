@@ -141,6 +141,11 @@ client.on("ready", function(){
         console.log(`Generated bot invite link\n\n\x1b[1m${link}\x1b[0m\n`);
         inviteLink = link;
     });
+
+    // Load the utilities that have the init event set to true in their metadata
+    client.utilities.filterArray(o => o.meta.init && o.meta.init == true).forEach(function(utility) {
+        utility.run(client, null, null, config);
+    });
 });
 
 // message
@@ -172,10 +177,35 @@ client.on("message", function(message){
     .catch((err) => {
         console.error('message has no user', err);
     });
+
+    // Load the utilities that have the 'message' event specified in their metadata
+    // TODO : Maybe there is an event thrown from discord.js for every event, maybe this would be better suited in there
+    // to automate the process a little more.  Look at the next event to see what I mean.
+    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages')).forEach(function(utility) {
+        utility.run(client, message, args, config);
+    });
+});
+
+// messageDelete
+/* Emitted whenever a message is deleted.
+PARAMETER      TYPE           DESCRIPTION
+message        Message        The deleted message    */
+client.on("messageDelete", function(message){
+    if(config.DEBUG) console.log(`message is deleted -> ${message}`);
+
+    // See what I mean?  This next code block needs to be added to any event that you want to write a utility for.
+    // In this fashion, it is more performant to only look for utilities in the events that have utilities made for
+    // them,  If this code block was moved to a `all events` emitter, then the code would look nicer/cleaner.  I don't
+    // think there is an event available via discord.js for that tho, so ..
+    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messageDelete')).forEach(function(utility) {
+        // notice the null?  The utility wants (client, message, arguments, config) but there are no arguments for this
+        //type of event utility, so set that to null.
+        utility.run(client, message, null, config);
+    });
 });
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-// the rest of'm
+// the rest of'm, in alphabetical order
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 // channelCreate
@@ -378,14 +408,6 @@ oldGuild      Guild     The guild before the update
 newGuild      Guild     The guild after the update    */
 client.on("guildUpdate", function(oldGuild, newGuild){
     if(config.DEBUG) console.error(`a guild is updated`);
-});
-
-// messageDelete
-/* Emitted whenever a message is deleted.
-PARAMETER      TYPE           DESCRIPTION
-message        Message        The deleted message    */
-client.on("messageDelete", function(message){
-    if(config.DEBUG) console.log(`message is deleted -> ${message}`);
 });
 
 // messageDeleteBulk
