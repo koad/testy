@@ -51,15 +51,13 @@ Now you can create various commands and utilities for your bot.  Look at the sam
 Don't be silly, use [nodemon](https://github.com/remy/nodemon)!  
 [The Canada eCoin Discord Channels](https://discord.gg/9wAtaBG)    
 [An Idiots Guide to Discord](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)  
-[]()  
-[]()  
 
+### super common data types  
 
-### super common data types 
-[message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)
-[user -> https://discord.js.org/#/docs/main/stable/class/User](https://discord.js.org/#/docs/main/stable/class/User)
-[Guild -> https://discord.js.org/#/docs/main/stable/class/Guild](https://discord.js.org/#/docs/main/stable/class/Guild)
-[GuildMember -> https://discord.js.org/#/docs/main/stable/class/GuildMember](https://discord.js.org/#/docs/main/stable/class/GuildMember)
-[Channel -> https://discord.js.org/#/docs/main/stable/class/Channel](https://discord.js.org/#/docs/main/stable/class/Channel)
-[Role -> https://discord.js.org/#/docs/main/stable/class/Role](https://discord.js.org/#/docs/main/stable/class/Role)
-[Message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)
+[message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)  
+[user -> https://discord.js.org/#/docs/main/stable/class/User](https://discord.js.org/#/docs/main/stable/class/User)  
+[Guild -> https://discord.js.org/#/docs/main/stable/class/Guild](https://discord.js.org/#/docs/main/stable/class/Guild)  
+[GuildMember -> https://discord.js.org/#/docs/main/stable/class/GuildMember](https://discord.js.org/#/docs/main/stable/class/GuildMember)  
+[Channel -> https://discord.js.org/#/docs/main/stable/class/Channel](https://discord.js.org/#/docs/main/stable/class/Channel)  
+[Role -> https://discord.js.org/#/docs/main/stable/class/Role](https://discord.js.org/#/docs/main/stable/class/Role)  
+[Message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)  
