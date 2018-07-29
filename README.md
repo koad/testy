@@ -56,10 +56,10 @@ Don't be silly, use [nodemon](https://github.com/remy/nodemon)!
 
 
 ### super common data types 
-    [message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)
-    [user -> https://discord.js.org/#/docs/main/stable/class/User](https://discord.js.org/#/docs/main/stable/class/User)
-    [Guild -> https://discord.js.org/#/docs/main/stable/class/Guild](https://discord.js.org/#/docs/main/stable/class/Guild)
-    [GuildMember -> https://discord.js.org/#/docs/main/stable/class/GuildMember](https://discord.js.org/#/docs/main/stable/class/GuildMember)
-    [Channel -> https://discord.js.org/#/docs/main/stable/class/Channel](https://discord.js.org/#/docs/main/stable/class/Channel)
-    [Role -> https://discord.js.org/#/docs/main/stable/class/Role](https://discord.js.org/#/docs/main/stable/class/Role)
-    [Message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)
+    [message](https://discord.js.org/#/docs/main/stable/class/Message)
+    [user](https://discord.js.org/#/docs/main/stable/class/User)
+    [Guild](https://discord.js.org/#/docs/main/stable/class/Guild)
+    [GuildMember](https://discord.js.org/#/docs/main/stable/class/GuildMember)
+    [Channel](https://discord.js.org/#/docs/main/stable/class/Channel)
+    [Role](https://discord.js.org/#/docs/main/stable/class/Role)
+    [Message](https://discord.js.org/#/docs/main/stable/class/Message)
