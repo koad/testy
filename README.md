@@ -6,6 +6,12 @@ Beware of bugs,  PRs are appreciated.
 
 ---
 
+## Prereqs
+
+* Node v7.10 or better
+
+---
+
 ## Installation
 
 Its easy to install testy into a portable package.
@@ -27,6 +33,12 @@ cd ~/.testy && subl config.js
 * Then to update then run the bot from the repo.
 ```
 cd ~/.testy/repo && git pull && DATADIR=~/.testy/ node index.js
+```
+
+Optional: Load the sample commands from this repo into your bot instance.
+```
+cd ~/.testy && cp repo/sample-commands/* ./commands
+cd ~/.testy && cp repo/sample-utilities/* ./utilities
 ```
 ---
 
