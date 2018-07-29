@@ -6,10 +6,12 @@ Beware of bugs,  PRs are appreciated.
 
 ---
 
-## Prereqs
+## Prerequisites
 
 * Node v7.10 or better
 * [discord.js](https://github.com/discordjs/discord.js)
+* [nodemon](https://github.com/remy/nodemon) (optional)
+
 
 ---
 
@@ -22,6 +24,7 @@ Its easy to install testy into a portable package.
 mkdir ~/.testy && cd ~/.testy
 git clone https://github.com/koad/testy.git repo
 cp repo/sample-config.js config.js && mkdir commands && mkdir utilities
+cd repo && npm install
 ```
 
 Now you will have a data directory (`.testy` in your home directory), this repo inside it in a directory called `repo`, a commands folder where you will put the commands for your bot (in javascript) and a similar directory for your utilities
