@@ -20,6 +20,9 @@ cp repo/sample-config.js config.js && mkdir commands && mkdir utilities
 Now you will have a data directory (`.testy` in your home directory), this repo inside it in a directory called `repo`, a commands folder where you will put the commands for your bot (in javascript) and a similar directory for your utilities
 
 * Open up ``config.js`` in your favorite editor and edit the values to reflect your machine/situation
+```
+cd ~/.testy && subl config.js
+```
 
 * Then to update then run the bot from the repo.
 ```
