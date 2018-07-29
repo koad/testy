@@ -1,5 +1,3 @@
-const Discord = require('discord.js');  // required to use the embed builder
-
 exports.run = async (client, message, args, config) => {
 
 	var fields = [];

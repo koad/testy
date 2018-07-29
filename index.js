@@ -61,6 +61,7 @@ client.session = new Discord.Collection();
 const log = (log) => { console.log(log); }
 
 // Load the commands from files.
+var totalCommands = 0;
 fs.readdir(datadir+'commands/', (err, files) => {
     if(err) {
         console.log(`\n\n\nNo commands directory found at "${datadir}commands/", did you set the bot up right?\n\ntry again, you need at least 1 command to continue.\n`);
@@ -82,4 +83,29 @@ fs.readdir(datadir+'commands/', (err, files) => {
     });
 
     log(`Total commands loaded: ${totalCommands}`);
+});
+
+// Load the utilities from files.
+var totalUtilities = 0;
+fs.readdir(datadir+'utilities/', (err, files) => {
+    if(err) {
+        console.log(`\n\n\nNo utilities directory found at "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
+        process.exit(1); // exit with error.
+    }
+
+    let jsfile = files.filter(f=> f.split(".").pop() === "js")
+
+    if(jsfile.length <= 0){
+        console.log(`\n\n\nNo utilities found in "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
+        return;
+    }
+
+    jsfile.forEach((file, i) => {
+        let props = require(`${datadir}utilities/${file}`)
+        if(config.DEBUG) console.log(`${datadir}utilities/${file} is loaded`);
+        client.utilities.set(props.meta.name, props);
+        totalUtilities++;
+    });
+
+    log(`Total commands loaded: ${totalUtilities}`);
 });
