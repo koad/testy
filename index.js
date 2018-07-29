@@ -115,15 +115,15 @@ fs.readdir(datadir+'utilities/', (err, files) => {
 
 var inviteLink = ""; // Will get this when the bot becomes ready...
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-// Everything below this line is listening for certain events from Discord and acting upon those events.
-// below this line is where you will do most/all of the coding of actions and such in this bot.
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-
 // Lets run a loop for whatever reason, you decide.
 setInterval(function(){ 
     console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
 }, 100000);
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// Everything below this line is listening for certain events from Discord and acting upon those events.
+// below this line is where you will do most/all of the coding of actions and such in this bot.
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 // The few commands that this bot uses out of the box up top -- then the rest in alphabetical order
 // for you to do your magic with.  Look at the top few events for inspiration and guidance
