@@ -2,17 +2,19 @@ var config = {};
 
 config.name = 'Testy the Example Discord Bot'
 config.prefix = '';
-config.homeId = '470727642170261504';
+config.homeId = 'DISCORD_CHANNEL_ID';
 config.copyright = '© kingofalldata.com';
 
 config.initalActivity = 'with Testy';
 config.initalStatus = 'dnd';
 
-// config.owner = '218373350643335168';
-config.owner = ['218373350643335168', '470378053198020619', '142733254154387456']; // Multiple Owners
+// config.owner = 'OWNER_DISCORD_ID';
+config.owner = ['OWNER_DISCORD_ID', 'OWNER_DISCORD_ID', 'OWNER_DISCORD_ID']; // Multiple Owners
 
-config.DEBUG = false;
-config.clearConsole = false;
+config.DEBUG = 'verbose';
+// config.DEBUG = true;
+// config.DEBUG = false;
+config.clearConsole = true;
 
 config.unknownCommandResponse = false;
 config.disableEveryone = true;
