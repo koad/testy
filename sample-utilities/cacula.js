@@ -8,5 +8,7 @@ exports.run = async (client, message, args, config) => {
 
 exports.meta = {
 	name: 'cacula',
-	help: `Responds with "I'm Batman!" whenever the word "Batman" is used in a channel`
+	help: `Responds with "I'm Batman!" whenever the word "Batman" is used in a channel`,
+	init: true,
+	events: ['messages']
 };
