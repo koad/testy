@@ -9,6 +9,7 @@ Beware of bugs,  PRs are appreciated.
 ## Prereqs
 
 * Node v7.10 or better
+* [discord.js](https://github.com/discordjs/discord.js)
 
 ---
 
