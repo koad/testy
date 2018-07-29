@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/koad/testy#readme",
   "dependencies": {
-    "discord.js": "^11.3.2"
+    "discord.js": "^11.3.2",
+    "nodemon": "^1.18.3"
   }
 }
