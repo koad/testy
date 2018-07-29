@@ -5,6 +5,9 @@ config.prefix = '';
 config.homeId = '470727642170261504';
 config.copyright = '© kingofalldata.com';
 
+config.initalActivity = 'with Testy';
+config.initalStatus = 'dnd';
+
 // config.owner = '218373350643335168';
 config.owner = ['218373350643335168', '470378053198020619', '142733254154387456']; // Multiple Owners
 

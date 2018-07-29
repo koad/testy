@@ -393,8 +393,8 @@ client.on("ready", function(){
 		inviteLink = link;
 	});
 
-  	client.user.setActivity("the upright organ");
-  	client.user.setStatus('dnd', 'Made by koad');
+  	client.user.setActivity(config.initalActivity);
+  	client.user.setStatus(config.initalStatus, 'Made by koad');
 });
 
 // reconnecting
@@ -498,13 +498,3 @@ setInterval(function(){
 	// console.log(`Bot has running, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
 }, 100000);
 
-// super common types 
-/*
-    message     -> https://discord.js.org/#/docs/main/stable/class/Message
-    user        -> https://discord.js.org/#/docs/main/stable/class/User
-    Guild       -> https://discord.js.org/#/docs/main/stable/class/Guild
-    GuildMember -> https://discord.js.org/#/docs/main/stable/class/GuildMember
-    Channel     -> https://discord.js.org/#/docs/main/stable/class/Channel
-    Role        -> https://discord.js.org/#/docs/main/stable/class/Role
-    Message     -> https://discord.js.org/#/docs/main/stable/class/Message
-*/
