@@ -32,17 +32,16 @@ catch(err) {
     process.exit(1); // exit with error.
 }
 
-if (config.DEBUG && config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
+if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
 console.log(`loading testy using datadir: ${datadir}`)
 
 // Check and see if there is a banner in the datadir, if so -- show it.
-try{
-    var banner = require(datadir+'/banner.js');
-    console.log(banner);
-}
-catch(err) {
-    console.log(`Support the Canada eCoin project -> canadaecoin.ca`)
-}
+fs.readFile(datadir+'banner', function (err, data) {
+    if (err) {
+        console.log(`Support the Canada eCoin project -> canadaecoin.ca`)
+    }
+    console.log(data.toString());
+});
 
 // Success loading our config files, perfect.
 // lets print that out if debug is set to true in our config file.
