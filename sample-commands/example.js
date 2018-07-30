@@ -56,4 +56,4 @@ exports.meta = {
 	help: 'an example command, to learn from.',
 	usage: 'example',
 	hidden: false
-}
+};
