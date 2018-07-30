@@ -3,9 +3,9 @@ exports.run = async (client, message, args, config) => {
 		"title": 'Command Disabled!',
 		"description": "This command is disabled and is not available for use.",
 		"color": config.color.alert,
-	    "thumbnail": {
-	      "url": "https://cdn.discordapp.com/attachments/301104285314318336/471103869586374676/unknown.png"
-	    },
+		"thumbnail": {
+			"url": "https://cdn.discordapp.com/attachments/301104285314318336/471103869586374676/unknown.png"
+		},
 		"fields": [{
 			"name": "Please try your call again later.",
 			"value": ":peace:",
@@ -19,5 +19,5 @@ exports.meta = {
 	help: 'a command that says its disabled.  Again, this is an example command that ships with this bot.',
 	usage: 'disabled __takes no arguments__',
 	hidden: true,
-	disabled: true // You can delete this line to enable the utility.
+disabled: true // You can delete this line to enable the utility.
 };
