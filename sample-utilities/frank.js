@@ -7,8 +7,8 @@ exports.run = async (client, message, args, config) => {
 	// Lets loop and display server info every once in a while.
 	setInterval(function(){ 
 		franksFartCount++;
-	    console.log(`frank farted...${franksFartCount}`);
-    	console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
+		console.log(`frank farted...${franksFartCount}`);
+		console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
 	}, 10000);
 };
 

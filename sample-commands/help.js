@@ -6,17 +6,17 @@ exports.run = async (client, message, args, config) => {
 			"name": 'Whoops',
 			"value": `only the help command exists, not much to display...`,
 			"inline": false
-	   	});
+		});
 		console.log('only the help command exists, not much to display...')
 	} else {
 		client.commands.forEach(function (element) {
 			console.log('yessss--', element);
 			if(element.meta.name && element.meta.help && element.meta.usage && !element.meta.hidden)
-			fields.push({
-				"name": config.prefix+element.meta.name,
-				"value": `${element.meta.help}\nusage: \`\`${element.meta.usage}\`\``,
-				"inline": false
-		   	})
+				fields.push({
+					"name": config.prefix+element.meta.name,
+					"value": `${element.meta.help}\nusage: \`\`${element.meta.usage}\`\``,
+					"inline": false
+				})
 		});
 	}
 
@@ -28,25 +28,25 @@ exports.run = async (client, message, args, config) => {
 		"author": {
 			"name": client.user.username,
 		},
-	    // "image": {
-	      // "url": client.user.avatarURL
-	    // },
+		// "image": {
+		// "url": client.user.avatarURL
+		// },
 		"fields": fields,
-    	"timestamp": new Date(),
+		"timestamp": new Date(),
 		"footer": {
 			icon_url: client.user.avatarURL,
 			text: config.copyright
 		},
-	    "thumbnail": {
-	      "url": client.user.avatarURL
-	    },
+		"thumbnail": {
+			"url": client.user.avatarURL
+		},
 	};
 
 	if(message.channel.type != "dm") {
-	    client.fetchUser(message.author.id)
-	    .then((user) => {
+		client.fetchUser(message.author.id)
+		.then((user) => {
 			user.send({ embed });
-	    });
+		});
 		message.reply(`I have sent you the help you need via \`\`direct message\`\``);
 	} else {
 		message.reply({ embed });

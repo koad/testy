@@ -19,5 +19,5 @@ exports.meta = {
 	help: 'a command that says its disabled.  Again, this is an example command that ships with this bot.',
 	usage: 'disabled __takes no arguments__',
 	hidden: true,
-disabled: true // You can delete this line to enable the utility.
+	disabled: true // You can delete this line to enable the utility.
 };
