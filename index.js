@@ -176,7 +176,7 @@ client.on("message", function(message){
         // If there is a command in our collection with the matching name as our first argument, then load it.
         let command = client.commands.get(cmd.slice(config.prefix.length));
         //  If a command in the previous step gets loaded into our variable, then lets run it!
-        if (command) command.run(client, message, args, config);
+        if (command  && command.meta.disabled != true) command.run(client, message, args, config);
     })
     .catch((err) => {
         console.error('message has no user', err);

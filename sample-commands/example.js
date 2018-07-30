@@ -53,7 +53,7 @@ exports.run = async (client, message, args, config) => {
 
 exports.meta = {
 	name: 'example',
-	help: 'an example command, to learn from.',
+	help: 'an example command called example that responds with an example embed.',
 	usage: 'example',
 	hidden: false
 };
