@@ -8,8 +8,10 @@ const batmanSaysWhat = `I'm Batman`;
 
 exports.run = async (client, message, args, config) => {
 	var n = message.content.search(/batman/i);
-	if (n >= 0) message.reply(batmanSaysWhat); 
-	console.log(`${BgRed}${FgBlack}  ${batmanSaysWhat}  ${Reset}`);
+	if (n >= 0) {
+		message.reply(batmanSaysWhat); 
+		console.log(`${BgRed}${FgBlack}  ${batmanSaysWhat}  ${Reset}`);
+	}
 };
 
 exports.meta = {
