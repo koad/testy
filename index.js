@@ -143,7 +143,7 @@ client.on("ready", function(){
     });
 
     // Load the utilities that have the init event set to true in their metadata
-    client.utilities.filterArray(o => o.meta.init && o.meta.init == true).forEach(function(utility) {
+    client.utilities.filterArray(o => o.meta.init && o.meta.init == true && o.meta.disabled != true).forEach(function(utility) {
         utility.run(client, null, null, config);
     });
 });
@@ -153,6 +153,10 @@ client.on("ready", function(){
 PARAMETER      TYPE           DESCRIPTION
 message        Message        The created message    */
 client.on("message", function(message){
+
+    // first off, if the message comes from another bot, then just ignore it.
+    if(message.author.bot) return;
+    
     if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
     let messageArray = message.content.split(" ");
     let cmd = messageArray[0];
@@ -181,7 +185,7 @@ client.on("message", function(message){
     // Load the utilities that have the 'message' event specified in their metadata
     // TODO : Maybe there is an event thrown from discord.js for every event, maybe this would be better suited in there
     // to automate the process a little more.  Look at the next event to see what I mean.
-    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages')).forEach(function(utility) {
+    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages') && o.meta.disabled != true).forEach(function(utility) {
         utility.run(client, message, args, config);
     });
 });
