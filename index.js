@@ -240,7 +240,7 @@ client.on("messageDelete", function(message){
 });
 
 // raw
-/* Emitted whenever a message is deleted.
+/* Emitted on every event. 
 PARAMETER       TYPE       DESCRIPTION
 data            Raw        All the data the event has to offer   */
 
