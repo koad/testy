@@ -11,7 +11,7 @@ exports.run = async (client, message, args, config) => {
 	} else {
 		client.commands.forEach(function (element) {
 			console.log('yessss--', element);
-			if(element.meta.name && element.meta.help && element.meta.usage && !element.meta.hidden)
+			if(element.meta.name && element.meta.help && element.meta.usage && !element.meta.hidden && !element.meta.isAlias)
 				fields.push({
 					"name": config.prefix+element.meta.name,
 					"value": `${element.meta.help}\nusage: \`\`${element.meta.usage}\`\``,
