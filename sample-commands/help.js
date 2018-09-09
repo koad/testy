@@ -56,5 +56,6 @@ exports.run = async (client, message, args, config) => {
 exports.meta = {
 	name: 'help',
 	help: 'Responds with a this message of help but can also be used to dig deeper on a specified topic.',
-	usage: 'help <topic>'
+	usage: 'help <topic>',
+	aliases: ['aider', 'dépanner', 'depanner']
 };
