@@ -55,6 +55,27 @@ client.session = new Discord.Collection();
 // this is a placeholder for a logger that has been removed for this moment.
 const log = (log) => { console.log(log); }
 
+// Maybe we want to have an interaction to an altcoin, if so then set it up and pin it into memory so it can be served to the commands.
+if(config.coin){
+    const altcoin = require('node-altcoin')
+    var coin = new altcoin({
+        host: config.coin.host || '127.0.0.1',
+        port: config.coin.port,
+        user: config.coin.user,
+        pass: config.coin.pass
+    });
+
+    coin.getDifficulty(function(err, args) {
+        if(err) {
+            console.log('getDifficulty error', err);
+        }else {
+            console.log('getDifficulty', args);
+        }
+    });
+
+    config.altcoin = coin;
+};
+
 // Load the commands from files.
 var totalCommands = 0;
 fs.readdir(datadir+'commands/', (err, files) => {
