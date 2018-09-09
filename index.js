@@ -74,6 +74,11 @@ fs.readdir(datadir+'commands/', (err, files) => {
         let props = require(`${datadir}commands/${file}`)
         if(config.DEBUG) console.log(`${datadir}commands/${file} is loaded`);
         client.commands.set(props.meta.name, props);
+        if(props.meta && props.meta.aliases){
+            props.meta.aliases.forEach(function(element) {
+                client.commands.set(element, props);
+            });
+        };
         totalCommands++;
     });
 
