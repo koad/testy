@@ -211,7 +211,8 @@ client.on("message", function(message){
 
     // Load the utilities that have the 'message' event specified in their metadata
     // TODO : Maybe there is an event thrown from discord.js for every event, maybe this would be better suited in there
-    // to automate the process a little more.  Look at the next event to see what I mean.
+    // to automate the process a little more.  Look at the next event to see what I mean. (thanks to Daro, we now can! 
+    // look for the 'raw' event down a couple dozen lines)
     client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages') && o.meta.disabled != true).forEach(function(utility) {
         utility.run(client, message, args, config);
     });
@@ -236,6 +237,19 @@ client.on("messageDelete", function(message){
 
     // TODO: Look into this,
     // For some reason, 'messageDelete' is only being called when messages that are new since bot came online.
+});
+
+// raw
+/* Emitted whenever a message is deleted.
+PARAMETER       TYPE       DESCRIPTION
+data            Raw        All the data the event has to offer   */
+
+// Thanks do Daro for uncovering this handy listener.  We can use this to launch commands and utilities instead
+// of having to do it within each and every different event.  We will get back to this later, when there is more time
+// to mess around. 
+client.on("raw", function(data){
+    // there is alot of info in this data object...
+    // if(config.DEBUG) console.log(`raw: ${JSON.stringify(data, null, 4)}`);
 });
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
