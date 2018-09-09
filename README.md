@@ -58,6 +58,7 @@ Now you can create various commands and utilities for your bot.  Look at the sam
 [An Idiots Guide to Discord - FAQ and short code examples](https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/frequently-asked-questions.md)  
 [An Idiots Guide to Discord - Understanding Collections](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)  
 [An Idiots Guide to Discord - Using embeds in messages](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/examples/using-embeds-in-messages.html)  
+[Using Async / Await](https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/other-guides/async-await.md)
 [The Canada eCoin Discord Channels](https://discord.gg/9wAtaBG)    
 Don't be silly, use [nodemon](https://github.com/remy/nodemon)!  
 
@@ -70,4 +71,3 @@ Don't be silly, use [nodemon](https://github.com/remy/nodemon)!
 [Channel -> https://discord.js.org/#/docs/main/stable/class/Channel](https://discord.js.org/#/docs/main/stable/class/Channel)  
 [Role -> https://discord.js.org/#/docs/main/stable/class/Role](https://discord.js.org/#/docs/main/stable/class/Role)  
 [Message -> https://discord.js.org/#/docs/main/stable/class/Message](https://discord.js.org/#/docs/main/stable/class/Message)  
-[Using Async / Await](https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/other-guides/async-await.md)
