@@ -52,12 +52,12 @@ Now you can create various commands and utilities for your bot.  Look at the sam
 
 ## References
 
-[Discord.js Documentation](https://discord.js.org/#/docs/main/stable/general/welcome)
-[Discord.js Guide](https://discordjs.guide/#/)
-[The Perfect Lil' Bot by eslachance](https://gist.github.com/eslachance/3349734a98d30011bb202f47342601d3)
-[An Idiots Guide to Discord - FAQ and short code examples](https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/frequently-asked-questions.md)
+[Discord.js Documentation](https://discord.js.org/#/docs/main/stable/general/welcome)  
+[Discord.js Guide](https://discordjs.guide/#/)  
+[The Perfect Lil' Bot by eslachance](https://gist.github.com/eslachance/3349734a98d30011bb202f47342601d3)  
+[An Idiots Guide to Discord - FAQ and short code examples](https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/frequently-asked-questions.md)  
 [An Idiots Guide to Discord - Understanding Collections](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/information/understanding-collections.html)  
-[An Idiots Guide to Discord - Using embeds in messages](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/examples/using-embeds-in-messages.html)
+[An Idiots Guide to Discord - Using embeds in messages](https://anidiotsguide_old.gitbooks.io/discord-js-bot-guide/content/examples/using-embeds-in-messages.html)  
 [The Canada eCoin Discord Channels](https://discord.gg/9wAtaBG)    
 Don't be silly, use [nodemon](https://github.com/remy/nodemon)!  
 
