@@ -65,11 +65,11 @@ if(config.coin){
         pass: config.coin.pass
     });
 
-    coin.getDifficulty(function(err, args) {
+    coin.settxfee(config.coin.fee, function(err, args) {
         if(err) {
-            console.log('getDifficulty error', err);
+            console.log('settxfee error', err);
         }else {
-            console.log('getDifficulty', args);
+            console.log('settxfee', args);
         }
     });
 
@@ -188,7 +188,7 @@ client.on("message", function(message){
     
     if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
     let messageArray = message.content.split(" ");
-    let cmd = messageArray[0];
+    let cmd = messageArray[0].toLowerCase();
     let args = messageArray.slice(1);
 
     if(config.DEBUG) console.log(`message is created -> ${args}`);
