@@ -173,7 +173,7 @@ client.on("ready", function(){
 
     // Load the utilities that have the init event set to true in their metadata
     client.utilities.filterArray(o => o.meta.init && o.meta.init == true && o.meta.disabled != true).forEach(function(utility) {
-        utility.run(client, null, null, config);
+        utility.run(Discord, client, config);
     });
 });
 
