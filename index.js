@@ -131,7 +131,7 @@ fs.readdir(datadir+'utilities/', (err, files) => {
         totalUtilities++;
     });
 
-    log(`Total commands loaded: ${totalUtilities}`);
+    log(`Total utilities loaded: ${totalUtilities}`);
 });
 
 // Load the manager scripts (optional)
@@ -509,7 +509,7 @@ PARAMETER    TYPE               DESCRIPTION
 oldMember    GuildMember        The member before the presence update
 newMember    GuildMember        The member after the presence update    */
 client.on("presenceUpdate", function(oldMember, newMember){
-    if(config.DEBUG) console.log(`a guild member's presence changes`);
+    if(config.DEBUG && config.DEBUG == "verbose") console.log(`a guild member's presence changes`);
 });
 
 // reconnecting
