@@ -52,6 +52,9 @@ client.utilities = new Discord.Collection();
 // we will also use this built in feature set to handle some session variables
 client.session = new Discord.Collection();
 
+// we will also use in-memory collections to handle some prefixes
+client.prefixes = new Discord.Collection();
+
 // this is a placeholder for a logger that has been removed for this moment.
 const log = (log) => { console.log(log); }
 
