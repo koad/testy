@@ -4,7 +4,7 @@ After a few nights of having dreams about the damn discord bot i was working on,
 
 Beware of bugs,  PRs are appreciated.
 
-## Keybase team for this repo exists -> [kingofalldata.bots.testy](keybase://team/kingofalldata.bots.testy)
+### Keybase team for this repo is [kingofalldata.bots.testy](keybase://team/kingofalldata.bots.testy)
 
 
 Todo: 
