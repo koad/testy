@@ -1,6 +1,6 @@
 // So even though we are passing the client in to this function will keep up to date with the client
 // To prove the concept, remove the disabled and join/leave servers and watch the data update.
-exports.run = async (client, message, args, config) => {
+exports.run = async (message) => {
 	console.log('frank called')
 	let franksFartCount = 0;
 

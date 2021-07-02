@@ -1,4 +1,4 @@
-exports.run = async (client, message, args, config) => {
+exports.run = async (message) => {
 	const embed = {
 		"title": 'Command Disabled!',
 		"description": "This command is disabled and is not available for use.",

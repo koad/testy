@@ -1,4 +1,4 @@
-exports.run = async (client, message, args, config) => {
+exports.run = async (message) => {
 
 	var fields = [];
 	if(client.commands.length == 1){

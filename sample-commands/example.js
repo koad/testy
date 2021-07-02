@@ -1,4 +1,4 @@
-exports.run = async (client, message, args, config) => {
+exports.run = async (message) => {
 	const embed = {
 		color: config.color.brand,
 		author: {
