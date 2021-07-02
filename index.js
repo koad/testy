@@ -1,247 +1,385 @@
-//  Discord all events!
-
-//  A quick and dirty fleshing out of the discord.js event listeners  (not tested at all!)
-//     listed here -> https://discord.js.org/#/docs/main/stable/class/Client
+//  Testy the Discord Example Bot!	
+//
+//
+//  An example chat bot that uses Discord.js and features optional support for a DDP websocket
+// 
+// 	Extremely Experimental!  As far as you are concerned, this software is not tested at all!
 //  Learn from this, do not just copy it mofo!
 
-            /*      
-                koad-was-here  
-                b25lIEdvZCwgb25lIGxvdmUu          
-                                            */
+			/*      
+				koad-was-here  
+				b25lIEdvZCwgb25lIGxvdmUu          
+											*/
 
-// This repo could be used as a module for indie.express and is compatible with the `Social Tools` drop-in
-
-const Discord = require('discord.js');
-const client = new Discord.Client();
+// This repo could be used as a module for indie.express and is compatible with the `koad-io://social-tools` drop-in
 
 const fs = require('fs');
+const mkdirp = require('mkdirp');
+const Discord = require('discord.js');
 const homedir = require('os').homedir();
-var datadir = process.env.DATADIR || homedir + '/.discord-example-bot/'
+const datadir = process.env.DATADIR || homedir + '/.discord-example-bot/'
 
-// Check and see if there is a config file in the datadir
+// Define some globally accessable modules
+Client = new Discord.Client(); 
+signale = require('signale');
+
+// Add timestamp and date to signale outputs
+signale.config({
+  displayTimestamp: true,
+  displayDate: true
+});
+
+// load the config file from the datadir
 try{
-    var config = require(datadir+'/config.js');
+	config = require(datadir+'/config.js');
 }
 catch(err) {
-    console.log(`\n\n\nConfig file not found in ${datadir}, did you set the bot up right?\n\ntry again\n`);
-    process.exit(1); // exit with error.
+	signale.fatal(`\n\n\nConfig file not found in ${datadir}, did you set the bot up right?\n\ntry again\n`);
+	process.exit(1); // exit with error.
 }
 
 if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
-console.log(`loading testy using datadir: ${datadir}`);
+signale.info(`loading testy using datadir: ${datadir}`);
 
 // Check and see if there is a banner in the datadir, if so -- show it.
 fs.readFile(datadir+'banner', function (err, data) {
-    if (err) {
-        console.log(`Support the Canada eCoin project -> canadaecoin.ca`);
-    } else {
-        console.log(`\n\x1b[1m${data.toString()}\x1b[0m\n`);
-    }
+	if (err) {
+		signale.info(`Support the Canada eCoin project -> canadaecoin.ca`);
+	} else {
+		signale.log(`\n\x1b[1m${data.toString()}\x1b[0m\n`);
+	}
 });
 
 // Success loading our config files, perfect.
 // lets print that out if debug is set to true in our config file.
-if(config.DEBUG) console.log(config);
+if(config.DEBUG) signale.debug(config);
+
+// lets set some handy known variables, globally
+SECONDS = 1000;
+MINUTES = SECONDS * 60;
+HOURS = MINUTES * 60;
+DAYS = HOURS * 24;
+DEBUG = config.debug;
 
 // Use the built in utility functions in Discord to manage some in-memory type collections
 // This is where we will load our command and utility scripts in from our data directory.
 // These collections are not persistent, and will need to be repopulated every time we start our bot.
-client.commands = new Discord.Collection();
-client.utilities = new Discord.Collection();
+Client.commands = new Discord.Collection();
+Client.utilities = new Discord.Collection();
 
-// we will also use this built in feature set to handle some session variables
-client.session = new Discord.Collection();
+// we will also use in-memory collections to handle some session variables
+Client.session = new Discord.Collection();
 
 // we will also use in-memory collections to handle some prefixes
-client.prefixes = new Discord.Collection();
+Client.prefixes = new Discord.Collection();
 
-// this is a placeholder for a logger that has been removed for this moment.
-const log = (log) => { console.log(log); }
+// also keep track of some activity stats
+Client.activities = new Discord.Collection();
 
-// Maybe we want to have an interaction to an altcoin, if so then set it up and pin it into memory so it can be served to the commands.
-if(config.coin){
-    const altcoin = require('node-altcoin')
-    var coin = new altcoin({
-        host: config.coin.host || '127.0.0.1',
-        port: config.coin.port,
-        user: config.coin.user,
-        pass: config.coin.pass
-    });
+// Sometimes you just gotta slow it down
+Client.locks = new Discord.Collection();
 
-    coin.settxfee(config.coin.fee, function(err, args) {
-        if(err) {
-            console.log('settxfee error', err);
-        }else {
-            console.log('settxfee', args);
-        }
-    });
+// If we specified a ddp server within our config, lets connect to it and leave it global
+// so the commands and utilities can access it.
+if(config.ddp){
+	var DDPClient = require("ddp-client");
+	var Random = require("ddp-random");
+	var random = Random.createWithSeeds("randomSeed");  // seed an id generator
+	var WebSocket = require('ws');
 
-    config.altcoin = coin;
-};
+	Marsha = new DDPClient({  						// Globally accessible
+	  // All properties optional, defaults shown
+	  host : config.ddp.host,
+	  port : config.ddp.port || 3000,
+	  ssl  : config.ddp.ssl || false,
+	  autoReconnect : true,
+	  autoReconnectTimer : 2500,
+	  maintainCollections : true,
+	  appId: config.appId,
+	  ddpVersion : '1',  // ['1', 'pre2', 'pre1'] available
+	  // Use a full url instead of a set of `host`, `port` and `ssl`
+	  // url: 'wss://example.com/websocket'
+	  socketContructor: WebSocket // Another constructor to create new WebSockets
+	});
+
+	// * Useful for debugging and learning the ddp protocol
+	Marsha.on('message', function (msg) {
+		if(config.DEBUG) signale.info("ddp message: " + msg);
+	});
+
+	Marsha.on('socket-close', function(code, message) {
+		signale.debug("Disconnected from server (%s %s)", code, message);
+		Marsha.isConnected = false;
+		Marsha._reconTimer = new Date();
+	});
+
+	Marsha.on('socket-error', function(error) {
+		signale.fatal("Error: %j", error);
+	});
+
+	Marsha.connect(function(error, wasReconnect) {
+		// If autoReconnect is true, this callback will be invoked each time
+		// a server connection is re-established
+		if (error) return signale.fatal('DDP connection error!');
+		Marsha.isConnected = true;
+
+		if (wasReconnect) {
+			signale.success('reconnected to DDP');
+		} else {
+			signale.success("connected to DDP");
+		}
+
+		// logging in with username
+		Marsha.call("login", [
+		  { user : { username : config.ddp.username }, password : config.ddp.password }
+		], function (err, result) {
+			if(err) return signale.fatal('unable to log into Marsha', err)
+			console.log("result:", result);
+			Marsha._loginToken = result
+			Marsha._isLoggedIn = Marsha._loginToken.id
+
+			let users = Marsha.collections.users
+			signale.info(`${users.find({}).length} users loaded in mempool`);
+
+			let user = users.findOne({_id: Marsha._isLoggedIn})
+			if(!user) return signale.fatal('Cannot log in to DDP; user data not found!')
+
+			// Once we are logged in, we can call on our subscriptions and reload the in-mem collections		
+			if(user.discord && user.discord.prefixes) user.discord.prefixes.forEach(function myFunction(item, index) {
+				Client.prefixes.set(item.guild, item.prefix);
+			});
+			signale.success('prefix data loaded from Marsha');
+			if(DEBUG) signale.debug(user.discord.prefixes);
+
+			if(Marsha.collections.discordGuilds) {
+				signale.info(`bringing forward activity data for ${Marsha.collections.discordGuilds.find({}).length} guilds`);
+				guildActivity = []
+				Marsha.collections.discordGuilds.find({}).forEach(function myFunction(guild, index) {
+					if(guild.activities && guild.activities.length){
+						guild.activities.forEach(function myFunction(activity, index) {
+							guildActivity[activity.user] = activity.when;
+						});
+						Client.activities.set(guild.guildid, guildActivity);
+					}
+				});
+			};
+
+			if(Marsha.collections.discordChannels) {
+				signale.info(`bringing forward activity data for ${Marsha.collections.discordChannels.find({}).length} channels`);
+				channelActivity = []
+				Marsha.collections.discordChannels.find({}).forEach(function myFunction(channel, index) {
+					if(channel.activities && channel.activities.length){
+						channel.activities.forEach(function myFunction(activity, index) {
+							channelActivity[activity.user] = activity.when;
+						});
+						Client.activities.set(channel.channelid, channelActivity);
+					}
+				});
+			};
+
+		});
+
+		/*
+		* If you need to do something specific on close or errors.
+		* You can also disable autoReconnect and
+		* call Marsha.connect() when you are ready to re-connect.
+		*/
+
+	});
+} else Marsha = false;
 
 // Load the commands from files.
 var totalCommands = 0;
 fs.readdir(datadir+'commands/', (err, files) => {
-    if(err) {
-        console.log(`\n\n\nNo commands directory found at "${datadir}commands/", did you set the bot up right?\n\ntry again, you need at least 1 command to continue.\n`);
-        process.exit(1); // exit with error.
-    }
+	if(err) signale.fatal(`\n\n\nNo commands directory found at "${datadir}commands/", did you set the bot up right?\n\ntry again, you need at least 1 command to continue.\n`);
+	if(err) process.exit(1); // exit with error.
 
-    let jsfile = files.filter(f=> f.split(".").pop() === "js")
+	// grab any file within our directly that end in `.js`
+	let jsfile = files.filter(f=> f.split(".").pop() === "js")
+	if(jsfile.length <= 0) signale.fatal(`\n\n\nNo commands found in "${datadir}commands/", did you set the bot up right?\n\ntry again, you need at least 1 command to continue.\n`);
+	if(jsfile.length <= 0) process.exit(1); // exit with error.
 
-    if(jsfile.length <= 0){
-        console.log(`\n\n\nNo commands found in "${datadir}commands/", did you set the bot up right?\n\ntry again, you need at least 1 command to continue.\n`);
-        process.exit(1); // exit with error.
-    }
+	// load each command into our in-memory storage
+	jsfile.forEach((file, i) => {
+		let props = require(`${datadir}commands/${file}`)
+		if(config.DEBUG) signale.info(`${datadir}commands/${file} is loaded`);
+		Client.commands.set(props.meta.name, props);
+		totalCommands++;
 
-    jsfile.forEach((file, i) => {
-        let props = require(`${datadir}commands/${file}`)
-        if(config.DEBUG) console.log(`${datadir}commands/${file} is loaded`);
-        client.commands.set(props.meta.name, props);
-        if(props.meta && props.meta.aliases){
-            let alias = {
-                meta: {isAlias: true},
-                run: props.run
-            }
-            props.meta.aliases.forEach(function(element) {
-                client.commands.set(element, alias);
-            });
-        };
-        totalCommands++;
-    });
-    log(`Total commands loaded: ${totalCommands}`);
+		// if the file contains aliases, ensure to save them as commands too.
+		if(props.meta && props.meta.aliases) props.meta.aliases.forEach(function(element) {
+			Client.commands.set(element, {
+				meta: {isAlias: true},
+				run: props.run
+			});
+		});
+	});
+	signale.success(`Total commands loaded: ${totalCommands}`);
 });
 
 // Load the utilities from files.
 var totalUtilities = 0;
 fs.readdir(datadir+'utilities/', (err, files) => {
-    if(err) {
-        console.log(`\n\n\nNo utilities directory found at "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
-        process.exit(1); // exit with error.
-    }
+	if(err) {
+		signale.fatal(`\n\n\nNo utilities directory found at "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
+		process.exit(1); // exit with error.
+	}
 
-    let jsfile = files.filter(f=> f.split(".").pop() === "js")
+	let jsfile = files.filter(f=> f.split(".").pop() === "js")
 
-    if(jsfile.length <= 0){
-        console.log(`\n\n\nNo utilities found in "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
-        process.exit(1); // exit with error.
-    }
+	if(jsfile.length <= 0){
+		signale.fatal(`\n\n\nNo utilities found in "${datadir}utilities/", did you set the bot up right?\n\ntry again, you need at least 1 utility to continue.\n`);
+		process.exit(1); // exit with error.
+	}
 
-    jsfile.forEach((file, i) => {
-        let props = require(`${datadir}utilities/${file}`)
-        if(config.DEBUG) console.log(`${datadir}utilities/${file} is loaded`);
-        client.utilities.set(props.meta.name, props);
-        totalUtilities++;
-    });
+	jsfile.forEach((file, i) => {
+		let props = require(`${datadir}utilities/${file}`)
+		if(config.DEBUG) signale.info(`${datadir}utilities/${file} is loaded`);
+		Client.utilities.set(props.meta.name, props);
+		totalUtilities++;
+	});
 
-    log(`Total utilities loaded: ${totalUtilities}`);
+	signale.success(`Total utilities loaded: ${totalUtilities}`);
 });
-
-// Load the manager scripts (optional)
-// const userManager = require("./user-manager.js");
-// const serverManager = require("./server-manager.js");
-// const channelManager = require("./channel-manager.js");
-// const invitesManager = require("./invites-manager.js");
-// const utilityManager = require("./utility-manager.js");
-// const commandManager = require("./command-manager.js");
-
-var inviteLink = ""; // Will get this when the bot becomes ready...
 
 // Lets run a loop for whatever reason, you decide.
 setInterval(function(){ 
-    console.log(`Guilds (${client.guilds.size}): ${client.guilds.map(g => g.name).join(", ")}`);
+	signale.info(`Guilds (${Client.guilds.size}): ${Client.guilds.map(g => g.name).join(", ")}`);
 }, 100000);
 
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
-// Everything below this line is listening for certain events from Discord and acting upon those events.
-// below this line is where you will do most/all of the coding of actions and such in this bot.
-// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
-// The few commands that this bot uses out of the box up top -- then the rest in alphabetical order
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+// 
+// Everything below this line is listening for certain events from Discord and acting upon those events.
+//
+// The few discord.js events that this bot uses (out of the box) are listed up top -- then the rest in alphabetical order
 // for you to do your magic with.  Look at the top few events for inspiration and guidance
 //
+
 // ready
-/* Emitted when the client becomes ready to start working.    */
-client.on("ready", function(){
-    console.log(`I am ready! Logged in as ${client.user.tag}!`);
-    console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
+/* Emitted when the Client becomes ready to start working.    */
+Client.on("ready", function(){
+	signale.success(`I am ready! Logged in as ${Client.user.tag}!`);
+	signale.success(`Bot has started, with ${Client.users.size} users, in ${Client.channels.size} channels of ${Client.guilds.size} guilds.`); 
 
-    client.user.setStatus(config.initalStatus, 'Made by koad');
-    client.user.setActivity(config.initalActivity);
-    client.generateInvite(config.permissions)
-    .then(link => {
-        console.log(`Generated bot invite link\n\n\x1b[1m${link}\x1b[0m\n`);
-        inviteLink = link;
-    });
+	Client.user.setStatus(config.initalStatus, 'Made by koad');
+	Client.user.setActivity(config.initalActivity);
+	Client.generateInvite(config.permissions)
+	.then(link => {
+		signale.success(`Generated bot invite link\n\n\x1b[1m${link}\x1b[0m\n`);
+		Client.inviteLink = link;
+	});
 
-    // Load the utilities that have the init event set to true in their metadata
-    client.utilities.filterArray(o => o.meta.init && o.meta.init == true && o.meta.disabled != true).forEach(function(utility) {
-        utility.run(Discord, client, config);
-    });
+	// Load the utilities that have the init event set to true in their metadata
+	Client.utilities.filterArray(o => o.meta.init && o.meta.init == true && o.meta.disabled != true).forEach(function(utility) {
+		utility.run();
+	});
 });
 
 // message
 /* Emitted whenever a message is created.
 PARAMETER      TYPE           DESCRIPTION
 message        Message        The created message    */
-client.on("message", function(message){
+Client.on("message", function(message){
+	// first off, if the message came from us, then just ignore it.
+	if(message.author.id === Client.user.id) return signale.debug('message came from the self, ignoring');
 
-    // first off, if the message comes from another bot, then just ignore it.
-    if(message.author.bot) return;
-    
-    if (config.clearConsole) process.stdout.write('\033c');  // clear the console, useful
-    let messageArray = message.content.split(" ");
-    let cmd = messageArray[0].toLowerCase();
-    let args = messageArray.slice(1);
+	// if in debug mode clear the console upon new messages
+	// useful for isolating response data within the console
+	if(config.clearConsole) process.stdout.write('\033c');  
 
-    if(config.DEBUG) console.log(`message is created -> ${args}`);
+	const amMentioned = message.isMentioned(Client.user.id);
+	let inboundMessage = message.content
+	var prefix = null;
+ 	// Find out if we have an alternate prefix stored somewhere for this guild
+	if(message.channel.type != "dm") prefix = Client.prefixes.get(message.guild.id) || config.prefix;
 
-    // If this is a DM and no prefix was used, then add it to the message now and proceed as normal.
-    if(message.channel.type == "dm" && cmd.charAt(0) != config.prefix) {
-        cmd = config.prefix + cmd;
-    };
+	// either we have a prefix, there is no prefix, or we were mentioned.
+	if(message.content.charAt(0) == prefix) {
+		message.args = inboundMessage.slice(prefix.length).trim().split(/ +/g);
+		message.prefix = prefix;
+	} else {
+		message.args = inboundMessage.trim().split(/ +/g);
+	};
 
-    // We only really want users to interact with the bot, so lets verify that now.  This 
-    // shouldnt really need to be done, but lets be paranoid here about things.
-    client.fetchUser(message.author.id)
-    .then((user) => {
-        // If there is a command in our collection with the matching name as our first argument, then load it.
-        let command = client.commands.get(cmd.slice(config.prefix.length));
-        //  If a command in the previous step gets loaded into our variable, then lets run it!
-        if (command  && command.meta.disabled != true) command.run(client, message, args, config);
-    })
-    .catch((err) => {
-        console.error('message has no user', err);
-    });
+	// if we were mentioned, fake the prefix.
+	if(message.isMentioned(Client.user.id) && !message.prefix) {
+		message.prefix = prefix;
+	};
 
-    // Load the utilities that have the 'message' event specified in their metadata
-    // TODO : Maybe there is an event thrown from discord.js for every event, maybe this would be better suited in there
-    // to automate the process a little more.  Look at the next event to see what I mean. (thanks to Daro, we now can! 
-    // look for the 'raw' event down a couple dozen lines)
-    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages') && o.meta.disabled != true).forEach(function(utility) {
-        utility.run(client, message, args, config);
-    });
+	// if we are in a DM, supress the prefix.
+	if(message.channel.type == "dm" && !message.prefix) {
+		message.prefix = "";
+	};
+
+	// Parse out the arguments
+	message.command = message.args.shift().toLowerCase(); // Get the command from the first argument
+
+	// send this message to any utilities that are for processing raw messages, then we can dismiss it if we want
+	Client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messages') && o.meta.disabled != true).forEach(function(utility) {
+		utility.run(message);
+	});
+
+	// now, if the message comes from another bot, then just ignore it.
+	if(message.author.bot) return;
+
+	// If whole message is our prefix, lets lift a brow (ack)
+	if(message.content === prefix) return message.reply('sup?');
+
+	// If the message is the word 'exit', its likely the user has typed into the wrong window, lets laugh at them
+	if(message.content === 'exit') return message.reply('lol.  Wrong window :stuck_out_tongue:');
+
+	// If we havent found any execution commandment; either a prefix, a mention or a DM where we flagged the prefix as an empty string above
+	if(!message.prefix && message.prefix != "") return signale.info('no commandment detected, exiting...');
+
+	// If we are in maintenance mode, then return a reply saying so.
+	if(config.maint.enabled == true && message.author.id != config.owner) return message.reply(config.maint.message); 
+
+	// If the disableEveryone flag is found within the config, then make sure only the owner can play.
+	if(config.disableEveryone && message.author.id != config.owner) return message.reply('I cannot do that for you in this moment,..  Sorry.'); 
+
+	// We only really want users to interact with the bot, so lets verify that now.  This 
+	// shouldnt really need to be done, but lets be paranoid here about things.
+	Client.fetchUser(message.author.id)
+	.then((user) => {
+		// If there is a command in our collection with the matching name as our first argument, then load it.
+		let command = Client.commands.get(message.command);
+		if (command && command.meta.disabled != true){ 
+			if(command.meta.experimental == true && config.owner != message.author.id){
+				return message.reply("I can't do that for you yet, sorry...\`\`\`The command you are attempting to run is currently in maintenance mode and is unavailable at this time,  try your call again later.\`\`\`");
+			} else {
+				signale.success(`running command ${message.command}`)
+				command.run(message);
+			}
+		} else {
+			// let the user know we are paying attention,
+    		if(message.channel.type != "dm" && config.unknownCommandResponse) message.reply("You talk'n to me?");
+			return signale.info(`thought i might have been commanded, but could not find a command called "${message.command}", exiting...`)
+		}
+	})
+	.catch((err) => {
+		signale.fatal('message has no user', err);
+	});
 });
 
 // messageDelete
 /* Emitted whenever a message is deleted.
 PARAMETER      TYPE           DESCRIPTION
 message        Message        The deleted message    */
-client.on("messageDelete", function(message){
-    if(config.DEBUG) console.log(`message is deleted -> ${message}`);
+Client.on("messageDelete", function(message){
+	if(config.DEBUG) signale.info(`message is deleted -> ${message}`);
 
-    // See what I mean?  This next code block needs to be added to any event that you want to write a utility for.
-    // In this fashion, it is more performant to only look for utilities in the events that have utilities made for
-    // them,  If this code block was moved to a `all events` emitter, then the code would look nicer/cleaner.  I don't
-    // think there is an event available via discord.js for that tho, so ..
-    client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messageDelete')).forEach(function(utility) {
-        // notice the null?  The utility wants (client, message, arguments, config) but there are no arguments for this
-        //type of event utility, so set that to null.
-        utility.run(client, message, null, config);
-    });
+	// If this code block was moved to a `all events` emitter, then the code would look nicer/cleaner. 
+	// there is an event available via discord.js called raw, maybe a TODO 4 l8r?
+	Client.utilities.filterArray(o => o.meta.events && o.meta.events.includes('messageDelete')).forEach(function(utility) {
 
-    // TODO: Look into this,
-    // For some reason, 'messageDelete' is only being called when messages that are new since bot came online.
+		utility.run(message);
+	});
+
+	// TODO: Look into this,
+	// For some reason, 'messageDelete' is only being called when messages that are new since bot came online,
+	// You might want to cache any messages that are still active for whatever reason into a DB
+	// ie: voting / polls / reactions
 });
 
 // raw
@@ -250,11 +388,10 @@ PARAMETER       TYPE       DESCRIPTION
 data            Raw        All the data the event has to offer   */
 
 // Thanks do Daro for uncovering this handy listener.  We can use this to launch commands and utilities instead
-// of having to do it within each and every different event.  We will get back to this later, when there is more time
-// to mess around. 
-client.on("raw", function(data){
-    // there is alot of info in this data object...
-    // if(config.DEBUG) console.log(`raw: ${JSON.stringify(data, null, 4)}`);
+// of having to do it within each and every different event. 
+Client.on("raw", function(data){
+	// there is alot of info in this data object...
+	// if(config.DEBUG) signale.info(`raw: ${JSON.stringify(data, null, 4)}`);
 });
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
@@ -265,16 +402,16 @@ client.on("raw", function(data){
 /* Emitted whenever a channel is created.
 PARAMETER    TYPE        DESCRIPTION
 channel      Channel     The channel that was created    */
-client.on("channelCreate", function(channel){
-    if(config.DEBUG) console.log(`channelCreate: ${channel}`);
+Client.on("channelCreate", function(channel){
+	if(config.DEBUG) signale.info(`channelCreate: ${channel}`);
 });
 
 // channelDelete
 /* Emitted whenever a channel is deleted.
 PARAMETER   TYPE      DESCRIPTION
 channel     Channel   The channel that was deleted    */
-client.on("channelDelete", function(channel){
-    if(config.DEBUG) console.log(`channelDelete: ${channel}`);
+Client.on("channelDelete", function(channel){
+	if(config.DEBUG) signale.info(`channelDelete: ${channel}`);
 });
 
 // channelPinsUpdate
@@ -284,65 +421,65 @@ the pins yourself.
 PARAMETER    TYPE         DESCRIPTION
 channel      Channel      The channel that the pins update occurred in
 time         Date         The time of the pins update    */
-client.on("channelPinsUpdate", function(channel, time){
-    if(config.DEBUG) console.log(`channelPinsUpdate: ${channel}:${time}`);
+Client.on("channelPinsUpdate", function(channel, time){
+	if(config.DEBUG) signale.info(`channelPinsUpdate: ${channel}:${time}`);
 });
-    
+	
 // channelUpdate
 /* Emitted whenever a channel is updated - e.g. name change, topic change.
 PARAMETER        TYPE        DESCRIPTION
 oldChannel       Channel     The channel before the update
 newChannel       Channel     The channel after the update    */
-client.on("channelUpdate", function(oldChannel, newChannel){
-    if(config.DEBUG) console.log(`channelUpdate -> a channel is updated - e.g. name change, topic change`);
+Client.on("channelUpdate", function(oldChannel, newChannel){
+	if(config.DEBUG) signale.info(`channelUpdate -> a channel is updated - e.g. name change, topic change`);
 });
 
-// clientUserGuildSettingsUpdate
-/* Emitted whenever the client user's settings update.
+// ClientUserGuildSettingsUpdate
+/* Emitted whenever the Client user's settings update.
 PARAMETER                  TYPE                       DESCRIPTION
-clientUserGuildSettings    ClientUserGuildSettings    The new client user guild settings    */
-client.on("clientUserGuildSettingsUpdate", function(clientUserGuildSettings){
-    if(config.DEBUG) console.log(`clientUserGuildSettingsUpdate -> client user's settings update`);
+ClientUserGuildSettings    ClientUserGuildSettings    The new Client user guild settings    */
+Client.on("ClientUserGuildSettingsUpdate", function(ClientUserGuildSettings){
+	if(config.DEBUG) signale.info(`ClientUserGuildSettingsUpdate -> Client user's settings update`);
 });
 
-// clientUserSettingsUpdate
-/* Emitted when the client user's settings update.
+// ClientUserSettingsUpdate
+/* Emitted when the Client user's settings update.
 PARAMETER             TYPE                  DESCRIPTION
-clientUserSettings    ClientUserSettings    The new client user settings    */
-client.on("clientUserSettingsUpdate", function(clientUserSettings){
-    if(config.DEBUG) console.log(`clientUserSettingsUpdate -> client user's settings update`);
+ClientUserSettings    ClientUserSettings    The new Client user settings    */
+Client.on("ClientUserSettingsUpdate", function(ClientUserSettings){
+	if(config.DEBUG) signale.info(`ClientUserSettingsUpdate -> Client user's settings update`);
 });
 
 // debug
 /* Emitted for general debugging information.
 PARAMETER    TYPE         DESCRIPTION
 info         string       The debug information    */
-client.on("debug", function(info){
-    if(config.DEBUG) console.log(`debug -> ${info}`);
+Client.on("debug", function(info){
+	if(config.DEBUG) signale.debug(info);
 });
 
 // disconnect
-/* Emitted when the client's WebSocket disconnects and will no longer attempt to reconnect.
+/* Emitted when the Client's WebSocket disconnects and will no longer attempt to reconnect.
 PARAMETER    TYPE              DESCRIPTION
 Event        CloseEvent        The WebSocket close event    */
-client.on("disconnect", function(event){
-    if(config.DEBUG) console.log(`The WebSocket has closed and will no longer attempt to reconnect`);
+Client.on("disconnect", function(event){
+	if(config.DEBUG) signale.info(`The WebSocket has closed and will no longer attempt to reconnect`);
 });
 
 // emojiCreate
 /* Emitted whenever a custom emoji is created in a guild.
 PARAMETER    TYPE          DESCRIPTION
 emoji        Emoji         The emoji that was created    */
-client.on("emojiCreate", function(emoji){
-    if(config.DEBUG) console.log(`a custom emoji is created in a guild`);
+Client.on("emojiCreate", function(emoji){
+	if(config.DEBUG) signale.info(`a custom emoji is created in a guild`);
 });
 
 // emojiDelete
 /* Emitted whenever a custom guild emoji is deleted.
 PARAMETER    TYPE         DESCRIPTION
 emoji        Emoji        The emoji that was deleted    */
-client.on("emojiDelete", function(emoji){
-    if(config.DEBUG) console.log(`a custom guild emoji is deleted`);
+Client.on("emojiDelete", function(emoji){
+	if(config.DEBUG) signale.info(`a custom guild emoji is deleted`);
 });
 
 // emojiUpdate
@@ -350,16 +487,16 @@ client.on("emojiDelete", function(emoji){
 PARAMETER    TYPE       DESCRIPTION
 oldEmoji     Emoji      The old emoji
 newEmoji     Emoji      The new emoji    */
-client.on("emojiUpdate", function(oldEmoji, newEmoji){
-    if(config.DEBUG) console.log(`a custom guild emoji is updated`);
+Client.on("emojiUpdate", function(oldEmoji, newEmoji){
+	if(config.DEBUG) signale.info(`a custom guild emoji is updated`);
 });
 
 // error
-/* Emitted whenever the client's WebSocket encounters a connection error.
+/* Emitted whenever the Client's WebSocket encounters a connection error.
 PARAMETER    TYPE     DESCRIPTION
 error        Error    The encountered error    */
-client.on("error", function(error){
-    if(config.DEBUG) console.error(`client's WebSocket encountered a connection error: ${error}`);
+Client.on("error", function(error){
+	if(config.DEBUG) signale.fatal(`Client's WebSocket encountered a connection error: ${error}`);
 });
 
 // guildBanAdd
@@ -367,8 +504,8 @@ client.on("error", function(error){
 PARAMETER    TYPE          DESCRIPTION
 guild        Guild         The guild that the ban occurred in
 user         User          The user that was banned    */
-client.on("guildBanAdd", function(guild, user){
-    if(config.DEBUG) console.log(`a member is banned from a guild`);
+Client.on("guildBanAdd", function(guild, user){
+	if(config.DEBUG) signale.info(`a member is banned from a guild`);
 });
 
 // guildBanRemove
@@ -376,48 +513,48 @@ client.on("guildBanAdd", function(guild, user){
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The guild that the unban occurred in
 user         User         The user that was unbanned    */
-client.on("guildBanRemove", function(guild, user){
-    if(config.DEBUG) console.log(`a member is unbanned from a guild`);
+Client.on("guildBanRemove", function(guild, user){
+	if(config.DEBUG) signale.info(`a member is unbanned from a guild`);
 });
 
 // guildCreate
-/* Emitted whenever the client joins a guild.
+/* Emitted whenever the Client joins a guild.
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The created guild    */
-client.on("guildCreate", function(guild){
-    if(config.DEBUG) console.log(`the client joins a guild`);
+Client.on("guildCreate", function(guild){
+	if(config.DEBUG) signale.info(`the Client joins a guild`);
 });
 
 // guildDelete
 /* Emitted whenever a guild is deleted/left.
 PARAMETER    TYPE         DESCRIPTION
 guild        Guild        The guild that was deleted    */
-client.on("guildDelete", function(guild){
-    if(config.DEBUG) console.log(`the client deleted/left a guild`);
+Client.on("guildDelete", function(guild){
+	if(config.DEBUG) signale.info(`the Client deleted/left a guild`);
 });
 
 // guildMemberAdd
 /* Emitted whenever a user joins a guild.
 PARAMETER     TYPE               DESCRIPTION
 member        GuildMember        The member that has joined a guild    */
-client.on("guildMemberAdd", function(member){
-    if(config.DEBUG) console.log(`a user joins a guild: ${member.tag}`);
+Client.on("guildMemberAdd", function(member){
+	if(config.DEBUG) signale.info(`a user joins a guild: ${member.tag}`);
 });
 
 // guildMemberAvailable
 /* Emitted whenever a member becomes available in a large guild.
 PARAMETER     TYPE               DESCRIPTION
 member        GuildMember        The member that became available    */
-client.on("guildMemberAvailable", function(member){
-    if(config.DEBUG) console.log(`member becomes available in a large guild: ${member.tag}`);
+Client.on("guildMemberAvailable", function(member){
+	if(config.DEBUG) signale.info(`member becomes available in a large guild: ${member.tag}`);
 });
 
 // guildMemberRemove
 /* Emitted whenever a member leaves a guild, or is kicked.
 PARAMETER     TYPE               DESCRIPTION
 member        GuildMember        The member that has left/been kicked from the guild    */
-client.on("guildMemberRemove", function(member){
-    if(config.DEBUG) console.log(`a member leaves a guild, or is kicked: ${member.tag}`);
+Client.on("guildMemberRemove", function(member){
+	if(config.DEBUG) signale.info(`a member leaves a guild, or is kicked: ${member.tag}`);
 });
 
 // guildMembersChunk
@@ -425,8 +562,8 @@ client.on("guildMemberRemove", function(member){
 PARAMETER      TYPE                      DESCRIPTION
 members        Array<GuildMember>        The members in the chunk
 guild          Guild                     The guild related to the member chunk    */
-client.on("guildMembersChunk", function(members, guild){
-    if(config.DEBUG) console.error(`a chunk of guild members is received`);
+Client.on("guildMembersChunk", function(members, guild){
+	if(config.DEBUG) signale.info(`a chunk of guild members is received`);
 });
 
 // guildMemberSpeaking
@@ -434,24 +571,24 @@ client.on("guildMembersChunk", function(members, guild){
 PARAMETER     TYPE                DESCRIPTION
 member        GuildMember         The member that started/stopped speaking
 speaking      boolean             Whether or not the member is speaking    */
-client.on("guildMemberSpeaking", function(member, speaking){
-    if(config.DEBUG) console.log(`a guild member starts/stops speaking: ${member.tag}`);
+Client.on("guildMemberSpeaking", function(member, speaking){
+	if(config.DEBUG) signale.info(`a guild member starts/stops speaking: ${member.tag}`);
 });
 // guildMemberUpdate
 /* Emitted whenever a guild member changes - i.e. new role, removed role, nickname.
 PARAMETER    TYPE               DESCRIPTION
 oldMember    GuildMember        The member before the update
 newMember    GuildMember        The member after the update    */
-client.on("guildMemberUpdate", function(oldMember, newMember){
-    if(config.DEBUG) console.error(`a guild member changes - i.e. new role, removed role, nickname.`);
+Client.on("guildMemberUpdate", function(oldMember, newMember){
+	if(config.DEBUG) signale.info(`a guild member changes - i.e. new role, removed role, nickname.`);
 });
 
 // guildUnavailable
 /* Emitted whenever a guild becomes unavailable, likely due to a server outage.
 PARAMETER    TYPE          DESCRIPTION
 guild        Guild         The guild that has become unavailable    */
-client.on("guildUnavailable", function(guild){
-    if(config.DEBUG) console.error(`a guild becomes unavailable, likely due to a server outage: ${guild}`);
+Client.on("guildUnavailable", function(guild){
+	if(config.DEBUG) signale.fatal(`a guild becomes unavailable, likely due to a server outage: ${guild}`);
 });
 
 // guildUpdate
@@ -459,16 +596,16 @@ client.on("guildUnavailable", function(guild){
 PARAMETER     TYPE      DESCRIPTION
 oldGuild      Guild     The guild before the update
 newGuild      Guild     The guild after the update    */
-client.on("guildUpdate", function(oldGuild, newGuild){
-    if(config.DEBUG) console.error(`a guild is updated`);
+Client.on("guildUpdate", function(oldGuild, newGuild){
+	if(config.DEBUG) signale.info(`a guild is updated`);
 });
 
 // messageDeleteBulk
 /* Emitted whenever messages are deleted in bulk.
 PARAMETER    TYPE                              DESCRIPTION
 messages     Collection<Snowflake, Message>    The deleted messages, mapped by their ID    */
-client.on("messageDeleteBulk", function(messages){
-    if(config.DEBUG) console.log(`messages are deleted -> ${messages}`);
+Client.on("messageDeleteBulk", function(messages){
+	if(config.DEBUG) signale.info(`messages are deleted -> ${messages}`);
 });
 
 // messageReactionAdd
@@ -476,8 +613,8 @@ client.on("messageDeleteBulk", function(messages){
 PARAMETER              TYPE                   DESCRIPTION
 messageReaction        MessageReaction        The reaction object
 user                   User                   The user that applied the emoji or reaction emoji     */
-client.on("messageReactionAdd", function(messageReaction, user){
-    if(config.DEBUG) console.log(`a reaction is added to a message`);
+Client.on("messageReactionAdd", function(messageReaction, user){
+	if(config.DEBUG) signale.info(`a reaction is added to a message`);
 });
 
 // messageReactionRemove
@@ -485,16 +622,16 @@ client.on("messageReactionAdd", function(messageReaction, user){
 PARAMETER              TYPE                   DESCRIPTION
 messageReaction        MessageReaction        The reaction object
 user                   User                   The user that removed the emoji or reaction emoji     */
-client.on("messageReactionRemove", function(messageReaction, user){
-    if(config.DEBUG) console.log(`a reaction is removed from a message`);
+Client.on("messageReactionRemove", function(messageReaction, user){
+	if(config.DEBUG) signale.info(`a reaction is removed from a message`);
 });
 
 // messageReactionRemoveAll
 /* Emitted whenever all reactions are removed from a message.
 PARAMETER          TYPE           DESCRIPTION
 message            Message        The message the reactions were removed from    */
-client.on("messageReactionRemoveAll", function(message){
-    if(config.DEBUG) console.error(`all reactions are removed from a message`);
+Client.on("messageReactionRemoveAll", function(message){
+	if(config.DEBUG) signale.info(`all reactions are removed from a message`);
 });
 
 // messageUpdate
@@ -502,8 +639,8 @@ client.on("messageReactionRemoveAll", function(message){
 PARAMETER     TYPE           DESCRIPTION
 oldMessage    Message        The message before the update
 newMessage    Message        The message after the update    */
-client.on("messageUpdate", function(oldMessage, newMessage){
-    if(config.DEBUG) console.log(`a message is updated`);
+Client.on("messageUpdate", function(oldMessage, newMessage){
+	if(config.DEBUG) signale.info(`a message is updated`);
 });
 
 // presenceUpdate
@@ -511,38 +648,38 @@ client.on("messageUpdate", function(oldMessage, newMessage){
 PARAMETER    TYPE               DESCRIPTION
 oldMember    GuildMember        The member before the presence update
 newMember    GuildMember        The member after the presence update    */
-client.on("presenceUpdate", function(oldMember, newMember){
-    if(config.DEBUG && config.DEBUG == "verbose") console.log(`a guild member's presence changes`);
+Client.on("presenceUpdate", function(oldMember, newMember){
+	if(config.DEBUG && config.DEBUG == "verbose") signale.info(`a guild member's presence changes`);
 });
 
 // reconnecting
-/* Emitted whenever the client tries to reconnect to the WebSocket.    */
-client.on("reconnecting", function(){
-    if(config.DEBUG) console.log(`client tries to reconnect to the WebSocket`);
+/* Emitted whenever the Client tries to reconnect to the WebSocket.    */
+Client.on("reconnecting", function(){
+	if(config.DEBUG) signale.info(`Client trying to reconnect to the WebSocket`);
 });
 
 // resume
 /* Emitted whenever a WebSocket resumes.
 PARAMETER    TYPE          DESCRIPTION
 replayed     number        The number of events that were replayed    */
-client.on("resume", function(replayed){
-    if(config.DEBUG) console.log(`whenever a WebSocket resumes, ${replayed} replays`);
+Client.on("resume", function(replayed){
+	if(config.DEBUG) signale.info(`a WebSocket has resumed: ${replayed} replays`);
 });
 
 // roleCreate
 /* Emitted whenever a role is created.
 PARAMETER    TYPE        DESCRIPTION
 role         Role        The role that was created    */
-client.on("roleCreate", function(role){
-    if(config.DEBUG) console.error(`a role is created`);
+Client.on("roleCreate", function(role){
+	if(config.DEBUG) signale.info(`a role is created`);
 });
 
 // roleDelete
 /* Emitted whenever a guild role is deleted.
 PARAMETER    TYPE        DESCRIPTION
 role         Role        The role that was deleted    */
-client.on("roleDelete", function(role){
-    if(config.DEBUG) console.error(`a guild role is deleted`);
+Client.on("roleDelete", function(role){
+	if(config.DEBUG) signale.info(`a guild role is deleted`);
 });
 
 // roleUpdate
@@ -550,8 +687,8 @@ client.on("roleDelete", function(role){
 PARAMETER      TYPE        DESCRIPTION
 oldRole        Role        The role before the update
 newRole        Role        The role after the update    */
-client.on("roleUpdate", function(oldRole, newRole){
-    if(config.DEBUG) console.error(`a guild role is updated`);
+Client.on("roleUpdate", function(oldRole, newRole){
+	if(config.DEBUG) signale.info(`a guild role is updated`);
 });
 
 // typingStart
@@ -559,8 +696,8 @@ client.on("roleUpdate", function(oldRole, newRole){
 PARAMETER      TYPE            DESCRIPTION
 channel        Channel         The channel the user started typing in
 user           User            The user that started typing    */
-client.on("typingStart", function(channel, user){
-    if(config.DEBUG) console.log(`${user.tag} has started typing`);
+Client.on("typingStart", function(channel, user){
+	if(config.DEBUG) signale.info(`${user.tag} has started typing`);
 });
 
 // typingStop
@@ -568,8 +705,8 @@ client.on("typingStart", function(channel, user){
 PARAMETER       TYPE           DESCRIPTION
 channel         Channel        The channel the user stopped typing in
 user            User           The user that stopped typing    */
-client.on("typingStop", function(channel, user){
-    if(config.DEBUG) console.log(`${user.tag} has stopped typing`);
+Client.on("typingStop", function(channel, user){
+	if(config.DEBUG) signale.info(`${user.tag} has stopped typing`);
 });
 
 // userNoteUpdate
@@ -578,8 +715,8 @@ PARAMETER      TYPE          DESCRIPTION
 user           User          The user the note belongs to
 oldNote        String        The note content before the update
 newNote        String        The note content after the update    */
-client.on("userNoteUpdate", function(user, oldNote, newNote){
-    if(config.DEBUG) console.log(`a member's note is updated`);
+Client.on("userNoteUpdate", function(user, oldNote, newNote){
+	if(config.DEBUG) signale.info(`a member's note is updated`);
 });
 
 // userUpdate
@@ -587,8 +724,8 @@ client.on("userNoteUpdate", function(user, oldNote, newNote){
 PARAMETER      TYPE        DESCRIPTION
 oldUser        User        The user before the update
 newUser        User        The user after the update    */
-client.on("userUpdate", function(oldUser, newUser){
-    if(config.DEBUG) console.log(`user's details (e.g. username) are changed`);
+Client.on("userUpdate", function(oldUser, newUser){
+	if(config.DEBUG) signale.info(`user's details (e.g. username) are changed`);
 });
 
 // voiceStateUpdate
@@ -596,18 +733,18 @@ client.on("userUpdate", function(oldUser, newUser){
 PARAMETER    TYPE             DESCRIPTION
 oldMember    GuildMember      The member before the voice state update
 newMember    GuildMember      The member after the voice state update    */
-client.on("voiceStateUpdate", function(oldMember, newMember){
-    if(config.DEBUG) console.log(`a user changes voice state`);
+Client.on("voiceStateUpdate", function(oldMember, newMember){
+	if(config.DEBUG) signale.info(`a user changes voice state`);
 });
 
 // warn
 /* Emitted for general warnings. 
 PARAMETER    TYPE       DESCRIPTION
 info         string     The warning   */
-client.on("warn", function(info){
-    log(`warn: ${info}`);
+Client.on("warn", function(info){
+	signale.debug(`warn: ${info}`);
 });
 
 // Connect the bot to the discord servers
-client.login(config.discord.token);
+Client.login(config.discord.token);
 
