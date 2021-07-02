@@ -21,7 +21,6 @@
     "isomorphic-ws": "^4.0.1",
     "mkdirp": "^0.5.1",
     "node-altcoin": "^0.1.2",
-    "nodemon": "^1.18.3",
     "signale": "^1.4.0",
     "simpleddp": "^2.2.4",
     "ws": "^7.2.3"
