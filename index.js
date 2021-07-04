@@ -13,8 +13,6 @@
 
 // This repo could be used as a module for indie.express and is compatible with the `koad-io://social-tools` drop-in
 
-const fs = require('fs');
-const mkdirp = require('mkdirp');
 const Discord = require('discord.js');
 const homedir = require('os').homedir();
 const datadir = process.env.DATADIR || homedir + '/.discord-example-bot/'
@@ -22,6 +20,8 @@ const datadir = process.env.DATADIR || homedir + '/.discord-example-bot/'
 // Define some globally accessable modules
 Client = new Discord.Client(); 
 signale = require('signale');
+mkdirp = require('mkdirp');
+fs = require('fs');
 
 // Add timestamp and date to signale outputs
 signale.config({
@@ -82,9 +82,7 @@ Client.locks = new Discord.Collection();
 // If we specified a ddp server within our config, lets connect to it and leave it global
 // so the commands and utilities can access it.
 if(config.ddp){
-	var DDPClient = require("ddp-client");
-	var Random = require("ddp-random");
-	var random = Random.createWithSeeds("randomSeed");  // seed an id generator
+	var DDPClient = require("async-ddp-client");
 	var WebSocket = require('ws');
 
 	Marsha = new DDPClient({  						// Globally accessible
@@ -129,12 +127,14 @@ if(config.ddp){
 			signale.success("connected to DDP");
 		}
 
+		signale.debug(JSON.stringify({ user : { username : config.ddp.username }, password : config.ddp.password }))
+
 		// logging in with username
-		Marsha.call("login", [
-		  { user : { username : config.ddp.username }, password : config.ddp.password }
-		], function (err, result) {
+		Marsha.call("login", { resume: config.ddp.token })
+		.then((err, result) => {
 			if(err) return signale.fatal('unable to log into Marsha', err)
 			console.log("result:", result);
+			console.log("err:", err);
 			Marsha._loginToken = result
 			Marsha._isLoggedIn = Marsha._loginToken.id
 

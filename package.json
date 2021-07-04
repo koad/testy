@@ -17,12 +17,10 @@
   },
   "homepage": "https://github.com/koad/testy#readme",
   "dependencies": {
+    "async-ddp-client": "git+https://github.com/koad/async-ddp-client.git",
     "discord.js": "^11.3.2",
-    "isomorphic-ws": "^4.0.1",
     "mkdirp": "^0.5.1",
-    "node-altcoin": "^0.1.2",
     "signale": "^1.4.0",
-    "simpleddp": "^2.2.4",
     "ws": "^7.2.3"
   }
 }
